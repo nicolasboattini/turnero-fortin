@@ -200,13 +200,13 @@ async function handleFortinD() {
 // Botón JAGUAR → imprime un ticket normal
 async function handleJaguar() {
   const number = nextNumberGeneric("J");
-  return [await printTicket("JAGUAR", number)];
+  return [await printTicket("JAGUAR", number, recepcion)];
 }
 
 // Botón BAR → imprime un ticket con prefijo FB
 async function handleBar() {
   const number = nextNumberGeneric("BF");
-  return [await printTicket("BAR FORTIN", number)];
+  return [await printTicket("BAR FORTIN", number, recepcion)];
 }
 
 app.get("/print-button/:button", async (req, res) => {
