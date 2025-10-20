@@ -58,7 +58,10 @@ function loadData() {
         BL: -1,
         BU: -1,
         J: -1,
-        BF: -1
+        BF: -1,
+        AT: -1,
+        BT: -1,
+        PT: -1
       };
       fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2));
       return initialData;
@@ -80,6 +83,10 @@ function loadData() {
       data.BU = -1;
       data.J = -1;
       data.BF = -1;
+      data.AT = -1;
+      data.BT = -1;
+      data.PT = -1;
+      // Guardar los cambios
       saveData(data);
       console.log("✅ Contadores reiniciados para el nuevo día");
     }
@@ -97,7 +104,10 @@ function loadData() {
       BL: -1,
       BU: -1,
       J: -1,
-      BF: -1
+      BF: -1,
+      AT: -1,
+      BT: -1,
+      PT: -1
     };
   }
 }
@@ -197,6 +207,15 @@ async function handleFortinD() {
   return tickets;
 }
 
+//Tripulante, para choferes/tc/guias
+async function handleTripulante() {
+  const tickets = [];
+  tickets.push(await printTicket("ALMUERZO TRIPULANTE", nextNumberGeneric("AT"), recepcion));
+  tickets.push(await printTicket("BEBIDA TRIPULANTE", nextNumberGeneric("BT"), recepcion));
+  tickets.push(await printTicket("POSTRE TRIPULANTE", nextNumberGeneric("PT"), recepcion));
+  return tickets;
+}
+
 // Botón JAGUAR → imprime un ticket normal
 async function handleJaguar() {
   const number = nextNumberGeneric("J");
@@ -225,6 +244,9 @@ app.get("/print-button/:button", async (req, res) => {
         break;
       case "FORTIND":
         tickets = await handleFortinD();
+        break;
+      case "TRIPULANTE":
+        tickets = await handleTripulante();
         break;      
       case "JAGUAR":
         tickets = await handleJaguar();
@@ -460,8 +482,9 @@ app.get("/", (req, res) => {
           <div class="modal-buttons">
             <button onclick="handleModalAction('BUFFET_LIBERADO', 'FORTINB')">BUFFET LIBERADO</button>
             <button onclick="handleModalAction('PARRILLA_LIBERADO', 'FORTIND')">PARRILLA LIBERADO</button>
-            <button onclick="handleModalAction('BUFFET_PAGANTE', 'FORTINA')">BUFFET PAGANTE</button>
-            <button onclick="handleModalAction('PARRILLA_PAGANTE', 'FORTINC')">PARRILLA PAGANTE</button>
+            <button onclick="handleModalAction('TRIPULANTE', 'TRIPULANTE')">TRIPULANTE</button>
+            <button onclick="handleModalAction('BUFFET_PAGANTE', 'FORTINA')">BUFFET PAGANTE CAJA</button>
+            <button onclick="handleModalAction('PARRILLA_PAGANTE', 'FORTINC')">PARRILLA PAGANTE CAJA</button>
           </div>
         </div>
       </div>
@@ -505,9 +528,7 @@ app.get("/", (req, res) => {
 app.get("/recuento", async (req, res) => {
   try {
     // Leer el archivo data.json
-    const dataPath = path.join(__dirname, 'data.json');
-    const fileContent = await fsPromises.readFile(dataPath, 'utf-8');
-    const data = JSON.parse(fileContent);
+    const data = loadData();
     
     res.send(`
       <!DOCTYPE html>
@@ -574,7 +595,7 @@ app.get("/recuento", async (req, res) => {
             background: linear-gradient(135deg, #fef8df 0%, #fef8df 100%);
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px #6d633eff;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -632,9 +653,20 @@ app.get("/recuento", async (req, res) => {
             }
           }
           
+          @media (min-width: 768px) and (orientation: landscape) {
+            .recuento-grid {
+              grid-template-columns: repeat(3, 1fr);
+            }
+          }
+          
           @media (min-width: 1024px) {
             .container {
               padding: 50px;
+              max-width: 1000px;
+            }
+            
+            .recuento-grid {
+              grid-template-columns: repeat(3, 1fr);
             }
           }
         </style>
@@ -649,10 +681,10 @@ app.get("/recuento", async (req, res) => {
           <h1>Recuento de Turnos</h1>
 
           <div style="text-align: center; margin-bottom: 20px;">
-            <div style="color: #7D003E; font-size: 18px; font-weight: bold; margin-bottom: 10px;">
+            <div style="color: #7D003E; font-size: 20px; font-weight: bold; margin-bottom: 10px;">
               📅 Fecha: ${data.date || 'No disponible'}
             </div>
-            <div style="color: #2c5282; font-size: 16px; font-weight: bold;">
+            <div style="color: #7D003E; font-size: 20px; font-weight: bold;">
               🔐 Serial del día: ${data.serial || 'XXXX'}
             </div>
           </div>
@@ -696,6 +728,21 @@ app.get("/recuento", async (req, res) => {
             <div class="recuento-item">
               <span class="recuento-label" style="color: #7D003E;">BAR FORTÍN</span>
               <span class="recuento-value" style="color: #7D003E;">${data.BF + 1}</span>
+            </div>
+
+            <div class="recuento-item">
+              <span class="recuento-label" style="color: #7D003E;">ALMUERZO TRIPULANTE</span>
+              <span class="recuento-value" style="color: #7D003E;">${data.AT + 1}</span>
+            </div>
+
+            <div class="recuento-item">
+              <span class="recuento-label" style="color: #7D003E;">BEBITA TRIPULANTE</span>
+              <span class="recuento-value" style="color: #7D003E;">${data.BT + 1}</span>
+            </div>
+
+            <div class="recuento-item">
+              <span class="recuento-label" style="color: #7D003E;">POSTRE TRIPULANTE</span>
+              <span class="recuento-value" style="color: #7D003E;">${data.PT + 1}</span>
             </div>
           </div>
 
