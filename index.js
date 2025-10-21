@@ -53,75 +53,6 @@ function generateSerial() {
   return serial;
 }
 
-// Función segura para leer JSON
-function loadData() {
-  try {
-    if (!fs.existsSync(DATA_PATH)) {
-      // Si no existe el archivo, crearlo con la estructura inicial
-      const initialData = {
-        date: getCurrentDate(),
-        serial: generateSerial(),
-        B: -1,
-        P: -1,
-        PL: -1,
-        PA: -1,
-        BL: -1,
-        BU: -1,
-        J: -1,
-        BF: -1,
-        AT: -1,
-        BT: -1,
-        PT: -1
-      };
-      fs.writeFileSync(DATA_PATH, JSON.stringify(initialData, null, 2));
-      return initialData;
-    }
-    const raw = fs.readFileSync(DATA_PATH, "utf8") || "{}";
-    const data = JSON.parse(raw);
-    const today = getCurrentDate();
-    // Verificar si la fecha cambió
-    if (!data.date || data.date !== today) {
-      console.log(`📅 Nueva fecha detectada: ${today}. Reiniciando contadores...`);
-      // Reiniciar todos los contadores
-      data.date = today;
-      data.serial = generateSerial();
-      data.B = -1;
-      data.P = -1;
-      data.PL = -1;
-      data.PA = -1;
-      data.BL = -1;
-      data.BU = -1;
-      data.J = -1;
-      data.BF = -1;
-      data.AT = -1;
-      data.BT = -1;
-      data.PT = -1;
-      // Guardar los cambios
-      saveData(data);
-      console.log("✅ Contadores reiniciados para el nuevo día");
-    }
-    return data;
-  } catch (error) {
-    console.error("⚠️ Error leyendo data.json:", error);
-    // En caso de error, retornar estructura inicial
-    return {
-      date: getCurrentDate(),
-      serial: generateSerial(),
-      B: -1,
-      P: -1,
-      PL: -1,
-      PA: -1,
-      BL: -1,
-      BU: -1,
-      J: -1,
-      BF: -1,
-      AT: -1,
-      BT: -1,
-      PT: -1
-    };
-  }
-}
-
 function loadDataBar() {
   try {
     if (!fs.existsSync(DATA_PATH_BAR)) {
@@ -237,6 +168,81 @@ function loadDataBar() {
     };
   }
 }
+
+// Función segura para leer JSON
+function loadData() {
+  try {
+    if (!fs.existsSync(DATA_PATH)) {
+      // Si no existe el archivo, crearlo con la estructura inicial
+      const initialData = {
+        date: getCurrentDate(),
+        serial: generateSerial(),
+        B: -1,
+        P: -1,
+        PL: -1,
+        PA: -1,
+        BL: -1,
+        BU: -1,
+        J: -1,
+        BF: -1,
+        AT: -1,
+        BT: -1,
+        PT: -1
+      };
+      fs.writeFileSync(DATA_PATH, JSON.stringify(initialData, null, 2));
+      return initialData;
+    }
+    const raw = fs.readFileSync(DATA_PATH, "utf8") || "{}";
+    const data = JSON.parse(raw);
+    const bar = loadDataBar();
+    const today = getCurrentDate();
+    // Verificar si la fecha cambió
+    if (!data.date || data.date !== today) {
+      console.log(`📅 Nueva fecha detectada: ${today}. Reiniciando contadores...`);
+      // Reiniciar todos los contadores
+      data.date = today;
+      data.serial = generateSerial();
+      data.B = -1;
+      data.P = -1;
+      data.PL = -1;
+      data.PA = -1;
+      data.BL = -1;
+      data.BU = -1;
+      data.J = -1;
+      data.BF = -1;
+      data.AT = -1;
+      data.BT = -1;
+      data.PT = -1;
+      // Guardar los cambios
+      saveData(data);
+      bar["serial"] = data.serial;
+      bar["date"] = data.date;
+      saveDataBar(bar);
+      console.log("✅ Contadores reiniciados para el nuevo día");
+    }
+    return data;
+  } catch (error) {
+    console.error("⚠️ Error leyendo data.json:", error);
+    // En caso de error, retornar estructura inicial
+    return {
+      date: getCurrentDate(),
+      serial: generateSerial(),
+      B: -1,
+      P: -1,
+      PL: -1,
+      PA: -1,
+      BL: -1,
+      BU: -1,
+      J: -1,
+      BF: -1,
+      AT: -1,
+      BT: -1,
+      PT: -1
+    };
+  }
+}
+
+
 
 // Función para guardar el JSON actualizado
 function saveData(data) {
@@ -417,27 +423,41 @@ app.get("/print-button/:button", async (req, res) => {
 // ==================== WEBSOCKETS ====================
 
 // Contador de clientes conectados
-let connectedClients = 0;
+let connectedClients = {
+  recuento: 0,
+  barra: 0
+};
 
 io.on('connection', (socket) => {
-  connectedClients++;
-  console.log(`✓ Cliente conectado. Total: ${connectedClients}`);
-  
-  // Enviar estado actual inmediatamente al conectarse
-  const currentData = loadData();
-  if (currentData) {
-    socket.emit('dataUpdate', currentData);
-  }
+  console.log(' ✓ Nuevo cliente conectado');
+
+  socket.on('joinRoom', (room) => {
+    if (room === 'recuento' || room === 'barra') {
+      socket.join(room);
+      connectedClients[room]++;
+      console.log(`✓ Cliente unido a la sala ${room}. Total en ${room}: ${connectedClients[room]}`);
+
+      const currentData = room === 'recuento' ? loadData() : loadDataBar();
+      if (currentData) {
+        socket.emit('dataUpdate', currentData);
+      }
+    }
+  });
   
   socket.on('disconnect', () => {
-    connectedClients--;
-    console.log(`✗ Cliente desconectado. Total: ${connectedClients}`);
+    if (socket.rooms.has('recuento')) {
+      connectedClients['recuento']--;
+      console.log(`🛑 Cliente desconectado de la sala recuento. Total en recuento: ${connectedClients['recuento']}`);
+    } else if (socket.rooms.has('barra')) {
+      connectedClients['barra']--;
+      console.log(`🛑 Cliente desconectado de la sala barra. Total en barra: ${connectedClients['barra']}`);
+    }
   });
 });
 
 // ==================== CHOKIDAR FILE WATCHER ====================
 
-const watcher = chokidar.watch(DATA_PATH, {
+const watcherRecuento = chokidar.watch(DATA_PATH, {
   persistent: true,
   ignoreInitial: true,
   awaitWriteFinish: {
@@ -446,25 +466,50 @@ const watcher = chokidar.watch(DATA_PATH, {
   }
 });
 
-watcher.on('change', (filePath) => {
+watcherRecuento.on('change', (filePath) => {
   console.log(`📄 Archivo modificado: ${filePath}`);
   
   const newData = loadData();
   if (newData) {
     // Emitir a TODOS los clientes conectados
-    io.emit('dataUpdate', newData);
-    console.log(`📡 Datos actualizados enviados a ${connectedClients} cliente(s)`);
+    io.to('recuento').emit('dataUpdate', newData);
+    console.log(`📡 Datos actualizados enviados a ${connectedClients['recuento']} cliente(s) en recuento`);
   }
 });
 
-watcher.on('error', (error) => {
+watcherRecuento.on('error', (error) => {
   console.error('❌ Error en file watcher:', error);
+});
+
+const watcherBarra = chokidar.watch(DATA_PATH_BAR, {
+  persistent: true,
+  ignoreInitial: true,
+  awaitWriteFinish: {
+    stabilityThreshold: 200,
+    pollInterval: 100
+  }
+});
+
+watcherBarra.on('change', (filePath) => {
+  console.log(`📄 Archivo modificado (barra): ${filePath}`);
+  
+  const newData = loadDataBar();
+  if (newData) {
+    // Emitir solo a los clientes de la sala "barra"
+    io.to('barra').emit('dataUpdate', newData);
+    console.log(`📡 Datos de barra enviados a ${connectedClients.barra} cliente(s)`);
+  }
+});
+
+watcherBarra.on('error', (error) => {
+  console.error('❌ Error en file watcher (barra):', error);
 });
 
 // Manejo graceful de cierre
 process.on('SIGINT', () => {
   console.log('\n🛑 Cerrando servidor...');
-  watcher.close();
+  watcherRecuento.close();
+  watcherBarra.close();
   server.close(() => {
     console.log('✓ Servidor cerrado');
     process.exit(0);
@@ -1035,6 +1080,7 @@ app.get("/recuento", async (req, res) => {
             console.log('✓ Conectado al servidor en tiempo real');
             statusDot.classList.remove('disconnected');
             statusText.textContent = 'En vivo';
+            socket.emit('joinRoom', 'recuento');
           });
 
           socket.on('disconnect', () => {
@@ -1121,6 +1167,7 @@ app.get("/barra", async (req, res) => {
   try {
     // Leer el archivo barData.json
     const barData = loadDataBar();
+    const data = loadData();
     
     res.send(`
       <!DOCTYPE html>
@@ -1171,6 +1218,41 @@ app.get("/barra", async (req, res) => {
             margin-bottom: 30px;
             font-size: clamp(24px, 4vw, 32px);
             text-align: center;
+          }
+
+          /* Indicador de conexión */
+          .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 1000;
+          }
+
+          .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #22c55e;
+            animation: pulse 2s infinite;
+          }
+
+          .status-dot.disconnected {
+            background: #ef4444;
+            animation: none;
+          }
+
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
           }
           
           /* Contadores superiores */
@@ -1354,24 +1436,38 @@ app.get("/barra", async (req, res) => {
         </style>
       </head>
       <body>
+        <!-- Indicador de conexión -->
+        <div class="connection-status">
+          <div class="status-dot" id="statusDot"></div>
+          <span id="statusText">En vivo</span>
+        </div>
+
         <div class="container">
           <div class="logo-container">
             <img src="/logo.png" alt="Logo Fortín Cataratas">
           </div>
           
           <h1>Control de Barra</h1>
+          <div style="text-align: center; margin-bottom: 20px;">
+            <div style="color: #7D003E; font-size: 20px; font-weight: bold; margin-bottom: 10px;">
+              📅 Fecha: <span id="fecha">${barData.date || 'No disponible'}</span>
+            </div>
+            <div style="color: #7D003E; font-size: 20px; font-weight: bold;">
+              🔐 Serial del día: <span id="serial">${barData.serial || 'XXXX'}</span>
+            </div>
+          </div>
           
           <!-- Contadores superiores -->
           <div class="header-counters">
             <div class="counter-card">
               <div class="counter-label">Disponibles</div>
-              <div class="counter-value">${barData.B || 0}</div>
+              <div id="bebidaCont" class="counter-value">${barData.B || 0}</div>
               <div class="counter-sublabel">BEBIDAS</div>
             </div>
             
             <div class="counter-card">
               <div class="counter-label">Disponibles</div>
-              <div class="counter-value">${barData.P || 0}</div>
+              <div id="postresCont" class="counter-value">${barData.P || 0}</div>
               <div class="counter-sublabel">POSTRES</div>
             </div>
           </div>
@@ -1384,40 +1480,26 @@ app.get("/barra", async (req, res) => {
               <div class="item-card">
                 <div class="item-name">Coca Cola</div>
                 <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('coca_cola', -1)">−</button>
+                  <button class="control-btn" onclick="updateItem('COCA', -1, B)">−</button>
                   <div class="item-image">
                     <img src="/images/coca-cola.jpg" alt="Coca Cola" onerror="this.style.display='none'">
                   </div>
-                  <button class="control-btn" onclick="updateItem('coca_cola', 1)">+</button>
-                  <div class="item-counter" id="counter-coca_cola">${barData["COCA"] || 0}</div>
+                  <button class="control-btn" onclick="updateItem('COCA', 1, B)">+</button>
+                  <div class="item-counter" data-value="COCA">${barData["COCA"] || 0}</div>
                 </div>
               </div>
-
-              <div class="item-card">
-                <div class="item-name">Coca Cola</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('coca_cola', -1)">−</button>
-                  <div class="item-image">
-                    <img src="/images/coca-cola.jpg" alt="Coca Cola" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('coca_cola', 1)">+</button>
-                  <div class="item-counter" id="counter-coca_cola">${barData["COCA"] || 0}</div>
-                </div>
-              </div>
-
-              <div class="item-card">
-                <div class="item-name">Coca Cola</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('coca_cola', -1)">−</button>
-                  <div class="item-image">
-                    <img src="/images/coca-cola.jpg" alt="Coca Cola" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('coca_cola', 1)">+</button>
-                  <div class="item-counter" id="counter-coca_cola">${barData["COCA"] || 0}</div>
-                </div>
-              </div>
-              
               <!-- Aquí agregas los otros 20 botones de bebidas -->
+              <div class="item-card">
+                <div class="item-name">Pepsi</div>
+                <div class="item-controls">
+                  <button class="control-btn" onclick="updateItem('PEPSI', -1, B)">−</button>
+                  <div class="item-image">
+                    <img src="/images/pepsi.jpg" alt="Pepsi" onerror="this.style.display='none'">
+                  </div>
+                  <button class="control-btn" onclick="updateItem('PEPSI', 1, B)">+</button>
+                  <div class="item-counter" data-value="PEPSI">${barData["PEPSI"] || 0}</div>
+                </div>
+              </div>
             </div>
           </div>
           
@@ -1432,9 +1514,72 @@ app.get("/barra", async (req, res) => {
           <button class="back-button" onclick="window.location.href='/'">Volver al Turnero</button>
         </div>
         
+        <!-- Socket.IO Client -->
+        <script src="/socket.io/socket.io.js"></script>
         <script>
+          const socket = io();
+          
+          const statusDot = document.getElementById('statusDot');
+          const statusText = document.getElementById('statusText');
+          const postresCounter = document.getElementById('postresCont');
+          const bebidasCounter = document.getElementById('bebidaCont');
+          const fechaEl = document.getElementById('fecha');
+          const serialEl = document.getElementById('serial');
+
+          // Manejo de conexión
+          socket.on('connect', () => {
+            console.log('✓ Conectado al servidor en tiempo real');
+            statusDot.classList.remove('disconnected');
+            statusText.textContent = 'En vivo';
+            socket.emit('joinRoom', 'barra');
+          });
+
+          socket.on('disconnect', () => {
+            console.log('✗ Desconectado del servidor');
+            statusDot.classList.add('disconnected');
+            statusText.textContent = 'Desconectado';
+          });
+
+          // Recibir actualizaciones de datos en tiempo real
+          socket.on('dataUpdate', (data) => {
+            console.log('📡 Actualización recibida:', data);
+            console.log('Datos de COCA:', data.COCA);
+            console.log('Datos de PEPSI:', data.PEPSI);
+            console.log('Todas las keys del objeto:', Object.keys(data));
+            updateBarra(data);
+          });
+
+          function updateBarra(data) {
+            // Actualizar fecha y serial
+            if (data.date) fechaEl.textContent = data.date; //OK
+            if (data.serial) serialEl.textContent = data.serial; //OK
+            //Actualizar contadores totales
+            if (bebidasCounter) bebidasCounter.textContent = data.B || 0; //OK
+            if (postresCounter) postresCounter.textContent = data.P || 0; //OK
+
+            // Actualizar contadores individuales de bebidas y postres por item
+            const bebidas = [ "AGUA-SGAS", "AGUA-CGAS", "COCA", "COCA-ZERO","PEPSI", "PEPSI-ZERO", "FANTA", "MIRINDA", "SPRITE", "SEVEN-UP", "SEVEN-UP-ZERO", "PDLT-POMA", "PDLT-TONICA", "LEV-PERA", "LEV-MANZANA", "LEV-POMELO", "LEV-NARANJA", "LEV-LIMONADA" ];
+            const postres = [ "TE", "CAFE", "ENS-FRUTA", "CHOCOTORTA", "FLAN", "MAMON-QUESO" ];
+            bebidas.forEach(bebida => {
+              const valueEl = document.querySelector(\`[data-value="\${bebida}"]\`);
+              if (valueEl) {
+              console.log("Actualizando:", data[bebida], 'Elemento encontrado:', !!valueEl);
+              }
+              if (valueEl && data[bebida] !== undefined) {
+                const newValue = data[bebida];
+                valueEl.textContent = newValue;
+              }
+            });
+            postres.forEach(postre => {
+              const valuePo = document.querySelector(\`[data-value="\${postre}"]\`);
+              if (valuePo && data[postre] !== undefined) {
+                const newValue = data[postre];
+                valuePo.textContent = newValue;
+              }
+            });
+          }
           // Función genérica para actualizar items
-          async function updateItem(itemKey, delta) {
+          async function updateItem(item, cant, category) {
             try {
               const response = await fetch('/api/bar/update', {
                 method: 'POST',
@@ -1478,11 +1623,11 @@ app.get("/barra", async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`
-╔════════════════════════════════════════╗
-║   🎫 Servidor Turnero Iniciado         ║
-║   📡 Puerto: ${PORT}                      ║
-║   🔄 WebSockets: Activo                ║
-║   👀 Observando: data.json             ║
-╚════════════════════════════════════════╝
+╔═══════════════════════════════════════════╗
+║   🎫 Servidor Turnero Iniciado            ║
+║   📡 Puerto: ${PORT}                         ║
+║   🔄 WebSockets: Activo                   ║
+║   👀 Observando: data.json y barData.json ║
+╚═══════════════════════════════════════════╝
   `);
 });
