@@ -40,7 +40,7 @@ if (bebidasCounter) bebidasCounter.textContent = data.B || 0; //OK
 if (postresCounter) postresCounter.textContent = data.P || 0; //OK
 
 // Actualizar contadores individuales de bebidas y postres por item
-const bebidas = [ "AGUA-SGAS", "AGUA-CGAS", "COCA", "COCA-ZERO","PEPSI", "PEPSI-ZERO", "FANTA", "MIRINDA", "SPRITE", "SEVEN-UP", "SEVEN-UP-ZERO", "PDLT-POMA", "PDLT-TONICA", "LEV-PERA", "LEV-MANZANA", "LEV-POMELO", "LEV-NARANJA", "LEV-LIMONADA" ];
+const bebidas = [ "AGUA-SGAS", "AGUA-CGAS", "AGUA-CGAS-DESC", "AGUA-SGAS-DESC","COCA", "COCA-ZERO","PEPSI", "PEPSI-ZERO", "FANTA", "MIRINDA", "SPRITE", "SEVEN-UP", "SEVEN-UP-ZERO", "PDLT-POMA", "PDLT-TONICA", "LEV-PERA", "LEV-MANZANA", "LEV-POMELO", "LEV-NARANJA", "LEV-LIMONADA" ];
 const postres = [ "TE", "CAFE", "ENS-FRUTA", "CHOCOTORTA", "FLAN", "MAMON-QUESO" ];
 bebidas.forEach(bebida => {
     const valueEl = document.querySelector([`[data-value="${bebida}"]`]);

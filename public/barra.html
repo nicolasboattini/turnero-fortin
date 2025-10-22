@@ -4,6 +4,12 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Control de Barra</title>
+        <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-title" content="Turnero" />
+        <link rel="manifest" href="/site.webmanifest" />
         <link rel="stylesheet" href="/css/barra.css">
       </head>
       <body>
@@ -47,244 +53,322 @@
           <div class="section">
             <h2 class="section-title">BEBIDAS</h2>
             <div class="items-grid" id="bebidas-grid">
-              <!-- Ejemplo de un botón/card -->
-              <div class="item-card">
-                <div class="item-name">AGUA SIN GAS</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('AGUA-SGAS', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/water.png" alt="Agua Sin Gas" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('AGUA-SGAS', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="AGUA-SGAS">{{AGUA-SGAS}}</div>
+
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">AGUA SIN GAS</div>
                 </div>
-              </div>
-              <!-- Aquí agregas los otros 20 botones de bebidas -->
-              <div class="item-card">
-                <div class="item-name">AGUA CON GAS</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('AGUA-CGAS', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/sparkling-water.png" alt="Agua Con Gas" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('AGUA-CGAS', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="AGUA-CGAS">{{AGUA-CGAS}}</div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('AGUA-SGAS', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="brands/glass-of-water.png" alt="Agua Sin Gas">
+                    </div>
+                    <button class="btn" onclick="updateItem('AGUA-SGAS', 1, 'B')">+</button>
                 </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="AGUA-SGAS">{{AGUA-SGAS}}</span>
+                </div>
+            </div>
+            <div class="inventory-card">
+              <div class="card-header">
+                  <div class="card-title">AGUA CON GAS</div>
               </div>
-              
-              <div class="item-card">
-                <div class="item-name">AGUA SIN GAS DESC.</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('AGUA-SGAS-DESC', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/images/agua-sin-gas-desc.jpg" alt="Agua Sin Gas Desc." onerror="this.style.display='none'">
+              <div class="card-body">
+                  <button class="btn-left" onclick="updateItem('AGUA-CGAS', -1, 'B')">−</button>
+                  <div class="card-image">
+                      <img src="brands/sparkling-water.png" alt="Agua Con Gas">
                   </div>
-                  <button class="control-btn" onclick="updateItem('AGUA-SGAS-DESC', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="AGUA-SGAS-DESC">{{AGUA-SGAS-DESC}}</div>
+                  <button class="btn" onclick="updateItem('AGUA-CGAS', 1, 'B')">+</button>
+              </div>
+              <div class="card-counter">
+                  <span class="item-counter-value" data-value="AGUA-CGAS">{{AGUA-CGAS}}</span>
+              </div>
+            </div>
+
+            <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">AGUA SIN GAS DESC.</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('AGUA-SGAS-DESC', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/agua-sin-gas-desc.jpg" alt="Agua Sin Gas Desc." onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('AGUA-SGAS-DESC', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="AGUA-SGAS-DESC">{{AGUA-SGAS-DESC}}</span>
+                </div>
+            </div>
+            <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">AGUA CON GAS DESC.</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('AGUA-CGAS-DESC', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/images/agua-con-gas-desc.jpg" alt="Agua Con Gas Desc." onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('AGUA-CGAS-DESC', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="AGUA-CGAS-DESC">{{AGUA-CGAS-DESC}}</span>
+                </div>
+            </div>
+
+            <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">COCA-COLA</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('COCA', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/coca-cola.jpg" alt="COCA COLA" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('COCA', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="COCA">{{COCA}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">AGUA CON GAS DESC.</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('AGUA-CGAS-DESC', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/images/agua-con-gas-desc.jpg" alt="Agua Con Gas Desc." onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('AGUA-CGAS-DESC', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="AGUA-CGAS-DESC">{{AGUA-CGAS-DESC}}</div>
+               <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">COCA-COLA ZERO</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('COCA-ZERO', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/coca-zero.png" alt="Coca Cola Zero" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('COCA-ZERO', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="COCA-ZERO">{{COCA-ZERO}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">COCA-COLA</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('COCA', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/coca-cola.png" alt="COCA COLA" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('COCA', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="COCA">{{COCA}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">PEPSI</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('PEPSI', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/pepsi.png" alt="Pepsi" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('PEPSI', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="PEPSI">{{PEPSI}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">COCA-COLA ZERO</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('COCA-ZERO', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/bottle.png" alt="Coca Cola Zero" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('COCA-ZERO', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="COCA-ZERO">{{COCA-ZERO}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">PEPSI ZERO</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('PEPSI-ZERO', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/pepsi-zero.png" alt="Pepsi Zero" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('PEPSI-ZERO', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="PEPSI-ZERO">{{PEPSI-ZERO}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">PEPSI</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('PEPSI', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/pepsi.png" alt="Pepsi" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('PEPSI', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="PEPSI">{{PEPSI}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">FANTA</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('FANTA', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/fanta.png" alt="Fanta" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('FANTA', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="FANTA">{{FANTA}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">PEPSI ZERO</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('PEPSI-ZERO', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/pepsi-zero.jpg" alt="Pepsi Zero" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('PEPSI-ZERO', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="PEPSI-ZERO">{{PEPSI-ZERO}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">MIRINDA</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('MIRINDA', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/mirinda.png" alt="Mirinda" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('MIRINDA', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="MIRINDA">{{MIRINDA}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">FANTA</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('FANTA', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/fanta.jpg" alt="Fanta" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('FANTA', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="FANTA">{{FANTA}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">SPRITE</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('SPRITE', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/sprite.png" alt="Sprite" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('SPRITE', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="SPRITE">{{SPRITE}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">MIRINDA</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('MIRINDA', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/mirinda.jpg" alt="Mirinda" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('MIRINDA', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="MIRINDA">{{MIRINDA}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">SEVEN-UP</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('SEVEN-UP', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/seven.png" alt="Seven Up" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('SEVEN-UP', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="SEVEN-UP">{{SEVEN-UP}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">SPRITE</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('SPRITE', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/images/sprite.jpg" alt="Sprite" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('SPRITE', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="SPRITE">{{SPRITE}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">SEVEN-UP ZERO</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('SEVEN-UP-ZERO', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/seven-zero.png" alt="Seven Up Zero" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('SEVEN-UP-ZERO', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="SEVEN-UP-ZERO">{{SEVEN-UP-ZERO}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">SEVEN-UP</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('SEVEN-UP', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/seven.png" alt="Seven Up" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('SEVEN-UP', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="SEVEN-UP">{{SEVEN-UP}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">PASO DE LOS TOROS POMELO</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('PDLT-POMA', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/pomelo-pdlt.png" alt="Paso de los Toros Pomelo" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('PDLT-POMA', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="PDLT-POMA">{{PDLT-POMA}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">SEVEN-UP ZERO</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('SEVEN-UP-ZERO', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/seven-zero.png" alt="Seven Up Zero" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('SEVEN-UP-ZERO', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="SEVEN-UP-ZERO">{{SEVEN-UP-ZERO}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">PASO DE LOS TOROS TONICA</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('PDLT-TONICA', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/tonica-pdlt.png" alt="Paso de los toros Tonica" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('PDLT-TONICA', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="PDLT-TONICA">{{PDLT-TONICA}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">PASO DE LOS TOROS POMELO</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('PDLT-POMA', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/pomelo-pdlt.png" alt="Paso de los Toros Pomelo" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('PDLT-POMA', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="PDLT-POMA">{{PDLT-POMA}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">LEVITE PERA</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('LEV-PERA', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/lev-pera.jpg" alt="Levite Pera" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('LEV-PERA', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="LEV-PERA">{{LEV-PERA}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">PASO DE LOS TOROS TONICA</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('PDLT-TONICA', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/tonica-pdlt.png" alt="Paso de los toros Tonica" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('PDLT-TONICA', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="PDLT-TONICA">{{PDLT-TONICA}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">LEVITE MANZANA</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('LEV-MANZANA', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/lev-manzana.jpg" alt="Levite Manzana" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('LEV-MANZANA', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="LEV-MANZANA">{{LEV-MANZANA}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">LEVITE PERA</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('LEV-PERA', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/pera-lev" alt="Levite Pera" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('LEV-PERA', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="LEV-PERA">{{LEV-PERA}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">LEVITE POMELO</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('LEV-POMELO', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/lev-pomelo.jpg" alt="Levite Pomelo" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('LEV-POMELO', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="LEV-POMELO">{{LEV-POMELO}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">LEVITE MANZANA</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('LEV-MANZANA', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/images/levite-manzana.jpg" alt="Levite Manzana" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('LEV-MANZANA', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="LEV-MANZANA">{{LEV-MANZANA}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">LEVITE NARANJA</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('LEV-PERA', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/lev-naranja.jpg" alt="Levite Naranja" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('LEV-NARANJA', 1, 'B')">+</button>
+                </div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="LEV-NARANJA">{{LEV-NARANJA}}</span>
                 </div>
               </div>
 
-              <div class="item-card">
-                <div class="item-name">LEVITE POMELO</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('LEV-POMELO', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/images/levite-pomelo.jpg" alt="Levite Pomelo" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('LEV-POMELO', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="LEV-POMELO">{{LEV-POMELO}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">LEVITE LIMONADA</div>
                 </div>
-              </div>
-
-              <div class="item-card">
-                <div class="item-name">LEVITE NARANJA</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('LEV-NARANJA', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/images/levite-naranja.jpg" alt="Levite Naranja" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('LEV-NARANJA', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="LEV-NARANJA">{{LEV-NARANJA}}</div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('LEV-LIMONADA', -1, 'B')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/lev-limonada.jpg" alt="Levite Limonada" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('LEV-LIMONADA', 1, 'B')">+</button>
                 </div>
-              </div>
-
-              <div class="item-card">
-                <div class="item-name">LEVITE LIMONADA</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('LEV-LIMONADA', -1, 'B')">-</button>
-                  <div class="item-image">
-                    <img src="/images/levite-limonada.jpg" alt="Levite Limonada" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('LEV-LIMONADA', 1, 'B')">+</button>
-                  <div class="item-counter" data-value="LEV-LIMONADA">{{LEV-LIMONADA}}</div>
+                <div class="card-counter">
+                    <span class="item-counter-value" data-value="LEV-LIMONADA">{{LEV-LIMONADA}}</span>
                 </div>
               </div>
 
@@ -296,77 +380,102 @@
             <h2 class="section-title">POSTRES</h2>
             <div class="items-grid" id="postres-grid">
               <!-- Aquí agregas los 6 botones de postres con el mismo formato -->
-               <div class="item-card">
-                <div class="item-name">TE</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('TE', -1, 'P')">-</button>
-                  <div class="item-image">
-                    <img src="/images/te.jpg" alt="Te" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('TE', 1, 'P')">+</button>
-                  <div class="item-counter" data-value="TE">{{TE}}</div>
-                </div>
-              </div>
 
-              <div class="item-card">
-                <div class="item-name">CAFE</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('CAFE', -1, 'P')">-</button>
-                  <div class="item-image">
-                    <img src="/images/cafe.jpg" alt="Cafe" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('CAFE', 1, 'P')">+</button>
-                  <div class="item-counter" data-value="CAFE">{{CAFE}}</div>
+               <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">TE</div>
                 </div>
-              </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('TE', -1, 'P')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/te.png" alt="Te" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('TE', 1, 'P')">+</button>
+                </div>
+                    <div class="card-counter">
+                        <span class="item-counter-value" data-value="TE">{{TE}}</span>
+                    </div>
+                </div>
 
-              <div class="item-card">
-                <div class="item-name">ENSALADA DE FRUTAS</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('ENS-FRUTA', -1, 'P')">-</button>
-                  <div class="item-image">
-                    <img src="/images/ensalada-frutas.jpg" alt="Ensalada de Frutas" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('ENS-FRUTA', 1, 'P')">+</button>
-                  <div class="item-counter" data-value="ENS-FRUTA">{{ENS-FRUTA}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">CAFE</div>
                 </div>
-              </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('CAFE', -1, 'P')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/cafe.jpg" alt="Cafe" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('CAFE', 1, 'P')">+</button>
+                </div>
+                    <div class="card-counter">
+                        <span class="item-counter-value" data-value="CAFE">{{CAFE}}</span>
+                    </div>
+                </div>
 
-              <div class="item-card">
-                <div class="item-name">CHOCOTORTA</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('CHOCOTORTA', -1, 'P')">-</button>
-                  <div class="item-image">
-                    <img src="/images/chocotorta.jpg" alt="Chocotorta" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('CHOCOTORTA', 1, 'P')">+</button>
-                  <div class="item-counter" data-value="CHOCOTORTA">{{CHOCOTORTA}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">ENSALADA DE FRUTAS</div>
                 </div>
-              </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('ENS-FRUTA', -1, 'P')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/fruta.jpg" alt="Ensalada de Frutas" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('ENS-FRUTA', 1, 'P')">+</button>
+                </div>
+                    <div class="card-counter">
+                        <span class="item-counter-value" data-value="ENS-FRUTA">{{ENS-FRUTA}}</span>
+                    </div>
+                </div>
 
-              <div class="item-card">
-                <div class="item-name">FLAN CON DULCE DE LECHE</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('FLAN', -1, 'P')">-</button>
-                  <div class="item-image">
-                    <img src="/images/flan.jpg" alt="Flan con Dulce de Leche" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('FLAN', 1, 'P')">+</button>
-                  <div class="item-counter" data-value="FLAN">{{FLAN}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">CHOCOTORTA</div>
                 </div>
-              </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('CHOCOTORTA', -1, 'P')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/chocotorta.jpg" alt="Chocotorta" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('CHOCOTORTA', 1, 'P')">+</button>
+                </div>
+                    <div class="card-counter">
+                        <span class="item-counter-value" data-value="CHOCOTORTA">{{CHOCOTORTA}}</span>
+                    </div>
+                </div>
 
-              <div class="item-card">
-                <div class="item-name">MAMÓN CON QUESO</div>
-                <div class="item-controls">
-                  <button class="control-btn" onclick="updateItem('MAMON-QUESO', -1, 'P')">-</button>
-                  <div class="item-image">
-                    <img src="/images/mamon-queso.jpg" alt="Mamón con Queso" onerror="this.style.display='none'">
-                  </div>
-                  <button class="control-btn" onclick="updateItem('MAMON-QUESO', 1, 'P')">+</button>
-                  <div class="item-counter" data-value="MAMON-QUESO">{{MAMON-QUESO}}</div>
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">FLAN CON DULCE DE LECHE</div>
                 </div>
-              </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('FLAN', -1, 'P')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/flan.jpg" alt="Flan con Dulce de Leche" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('FLAN', 1, 'P')">+</button>
+                </div>
+                    <div class="card-counter">
+                        <span class="item-counter-value" data-value="FLAN">{{FLAN}}</span>
+                    </div>
+                </div>
+
+              <div class="inventory-card">
+                <div class="card-header">
+                    <div class="card-title">MAMÓN CON QUESO</div>
+                </div>
+                <div class="card-body">
+                    <button class="btn-left" onclick="updateItem('MAMON-QUESO', -1, 'P')">−</button>
+                    <div class="card-image">
+                        <img src="/brands/mamon.jpg" alt="Mamón con Queso" onerror="this.style.display='none'">
+                    </div>
+                    <button class="btn" onclick="updateItem('MAMON-QUESO', 1, 'P')">+</button>
+                </div>
+                    <div class="card-counter">
+                        <span class="item-counter-value" data-value="MAMON-QUESO">{{MAMON-QUESO}}</span>
+                    </div>
+                </div>
 
             </div>
           </div>
