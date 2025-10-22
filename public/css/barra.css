@@ -130,7 +130,7 @@ border-bottom: 3px solid #7D003E;
 
 .items-grid {
 display: grid;
-grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 gap: 20px;
 }
 
@@ -201,12 +201,14 @@ display: flex;
 align-items: center;
 justify-content: center;
 overflow: hidden;
+position: relative;
 }
 
 .item-image img {
 width: 100%;
 height: 100%;
-object-fit: cover;
+object-fit: contain;
+object-position: center;
 }
 
 .item-counter {
@@ -252,5 +254,19 @@ box-shadow: 0 6px 20px rgba(125, 0, 62, 0.4);
 
 .item-controls {
     grid-template-columns: 50px 1fr 50px 70px;
+}
+
+.control-btn {
+    height: 50px;
+    font-size: 24px;
+}
+
+.item-image {
+    height: 70px;
+}
+
+.item-counter {
+    height: 50px;
+    font-size: 24px;
 }
 }

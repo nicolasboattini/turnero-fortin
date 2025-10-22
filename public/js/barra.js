@@ -9,16 +9,17 @@ const serialEl = document.getElementById('serial');
 
 // Manejo de conexión
 socket.on('connect', () => {
-console.log('✓ Conectado al servidor en tiempo real');
-statusDot.classList.remove('disconnected');
-statusText.textContent = 'En vivo';
-socket.emit('joinRoom', 'barra');
+  console.log('✓ Conectado al servidor en tiempo real');
+  statusDot.classList.remove('disconnected');
+  statusText.textContent = 'En vivo';
+  socket.emit('joinRoom', 'barra'); // o 'barra'
 });
 
 socket.on('disconnect', () => {
-console.log('✗ Desconectado del servidor');
-statusDot.classList.add('disconnected');
-statusText.textContent = 'Desconectado';
+  console.log('✗ Desconectado del servidor');
+  statusDot.classList.add('disconnected');
+  statusText.textContent = 'Desconectado';
+  // ❌ NO envíes leaveRoom aquí, ya estás desconectado
 });
 
 // Recibir actualizaciones de datos en tiempo real

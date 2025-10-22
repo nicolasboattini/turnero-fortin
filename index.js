@@ -437,10 +437,22 @@ let connectedClients = {
 
 io.on('connection', (socket) => {
   console.log(' ✓ Nuevo cliente conectado');
+  
+  // Variable para trackear la sala actual de este socket
+  let currentRoom = null;
 
   socket.on('joinRoom', (room) => {
     if (room === 'recuento' || room === 'barra') {
+      // Si ya estaba en una sala, salir primero
+      if (currentRoom) {
+        socket.leave(currentRoom);
+        connectedClients[currentRoom]--;
+        console.log(`⚠️ Cliente salió de ${currentRoom}. Total: ${connectedClients[currentRoom]}`);
+      }
+      
+      // Unirse a la nueva sala
       socket.join(room);
+      currentRoom = room; // Guardar la sala actual
       connectedClients[room]++;
       console.log(`✓ Cliente unido a la sala ${room}. Total en ${room}: ${connectedClients[room]}`);
 
@@ -450,14 +462,13 @@ io.on('connection', (socket) => {
       }
     }
   });
-  
+
   socket.on('disconnect', () => {
-    if (socket.rooms.has('recuento')) {
-      connectedClients['recuento']--;
-      console.log(`🛑 Cliente desconectado de la sala recuento. Total en recuento: ${connectedClients['recuento']}`);
-    } else if (socket.rooms.has('barra')) {
-      connectedClients['barra']--;
-      console.log(`🛑 Cliente desconectado de la sala barra. Total en barra: ${connectedClients['barra']}`);
+    // Solo decrementar si estaba en alguna sala
+    if (currentRoom && (currentRoom === 'recuento' || currentRoom === 'barra')) {
+      connectedClients[currentRoom] = Math.max(0, connectedClients[currentRoom] - 1);
+      console.log(`🛑 Cliente desconectado de la sala ${currentRoom}. Total en ${currentRoom}: ${connectedClients[currentRoom]}`);
+      currentRoom = null;
     }
   });
 });
@@ -609,6 +620,7 @@ app.get("/recuento", async (req, res) => {
 
 app.get("/barra", async (req, res) => {
   try {
+    const conteo = loadData();
     const data = loadDataBar();
     
     // Leer el archivo HTML
