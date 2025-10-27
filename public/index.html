@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turnero Fortín Cataratas</title>
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Turnero" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+    <div class="container">
+    <div class="logo-container">
+        <!-- Aquí va tu logo -->
+        <img src="/logo.png" alt="Logo Fortín Cataratas" id="logo">
+    </div>
+    
+    <h1>Turnero Fortín Cataratas</h1>
+    
+    <div class="button-grid">
+        <button onclick="openModal()">FORTÍN</button>
+        <button onclick="print('JAGUAR')">JAGUAR</button>
+        <button onclick="print('BAR')">BAR</button>
+        <button onclick="window.location.href='/recuento'" class="recuento-btn">RECUENTO</button>
+    </div>
+    
+    <div id="status"></div>
+    </div>
+    <!-- Modal -->
+    <div id="fortinModal" class="modal" onclick="closeModalOnOutsideClick(event)">
+    <div class="modal-content">
+        <h2>Seleccione una opción</h2>
+        <div class="modal-buttons">
+        <button onclick="handleModalAction('BUFFET_LIBERADO', 'FORTINB')">BUFFET LIBERADO</button>
+        <button onclick="handleModalAction('PARRILLA_LIBERADO', 'FORTIND')">PARRILLA LIBERADO</button>
+        <button onclick="handleModalAction('TRIPULANTE', 'TRIPULANTE')">TRIPULANTE</button>
+        <button onclick="handleModalAction('BUFFET_PAGANTE', 'FORTINA')">BUFFET PAGANTE CAJA</button>
+        <button onclick="handleModalAction('PARRILLA_PAGANTE', 'FORTINC')">PARRILLA PAGANTE CAJA</button>
+        </div>
+    </div>
+    </div>
+    <script src="/js/index.js"></script>
+</body>
+</html>

@@ -1,9 +1,11 @@
-import express from "express";
-import fs from "fs";
-import fsPromises from "fs/promises";
+import chokidar from 'chokidar';
 import escpos from "escpos";
 import escposNetwork from "escpos-network";
+import express from "express";
+import fs from "fs";
+import http from 'http';
 import path from 'path';
+import { Server as socketIo } from 'socket.io';
 import { fileURLToPath } from 'url';
 
 // Configuración impresora
@@ -13,6 +15,9 @@ const caja = "192.168.0.205"; //PV67
 const printerPort = 9100; //6001
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const DATA_PATH = path.join(__dirname, 'data.json');
+const DATA_PATH_BAR = path.join(__dirname, 'bar.json');
+const PORT = 3300;
 
 escpos.Network = escposNetwork;
 
@@ -21,10 +26,14 @@ const app = express();
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const PORT = 3300;
+const server = http.createServer(app);
+const io = new socketIo(server, {
+  cors: {
+    origin: "*", // Ajustar en producción
+    methods: ["GET", "POST"]
+  }
+});
 
-// Ruta del archivo JSON donde guardamos los contadores
-const DATA_FILE = "./data.json";
 
 function getCurrentDate() {
   const now = new Date();
@@ -43,11 +52,129 @@ function generateSerial() {
   return serial;
 }
 
+function loadDataBar() {
+  try {
+    if (!fs.existsSync(DATA_PATH_BAR)) {
+      // Si no existe el archivo, crearlo con la estructura inicial
+      const initialData = {
+        date: getCurrentDate(),
+        serial: "XXXX",
+        B: 0,
+        P: 0,
+        "AGUA-SGAS": 0,
+        "AGUA-CGAS": 0,
+        "AGUA-SGAS-DESC": 0,
+        "AGUA-CGAS-DESC": 0,
+        "COCA": 0,
+        "COCA-ZERO": 0,
+        "PEPSI": 0,
+        "PEPSI-ZERO": 0,
+        "FANTA": 0,
+        "MIRINDA": 0,
+        "SPRITE": 0,
+        "SEVEN-UP": 0,
+        "SEVEN-UP-ZERO": 0,
+        "PDLT-POMA": 0,
+        "PDLT-TONICA": 0,
+        "LEV-PERA": 0,
+        "LEV-MANZANA": 0,
+        "LEV-POMELO": 0,
+        "LEV-NARANJA": 0,
+        "LEV-LIMONADA": 0,
+        "TE": 0,
+        "CAFE": 0,
+        "ENS-FRUTA": 0,
+        "CHOCOTORTA": 0,
+        "FLAN": 0,
+        "MAMON-QUESO": 0
+      };
+      fs.writeFileSync(DATA_PATH_BAR, JSON.stringify(initialData, null, 2));
+      return initialData;
+    }
+    const raw = fs.readFileSync(DATA_PATH_BAR, "utf8") || "{}";
+    const data = JSON.parse(raw);
+    
+    const today = getCurrentDate();
+      if (!data.date || data.date !== today) {
+      data.date = today;
+      data.serial = "XXXX";
+      data.B = 0;
+      data.P = 0;
+      data["AGUA-SGAS"] = 0;
+      data["AGUA-CGAS"] = 0;
+      data["AGUA-SGAS-DESC"] = 0;
+      data["AGUA-CGAS-DESC"] = 0;
+      data["COCA"] = 0;
+      data["COCA-ZERO"] = 0;
+      data["PEPSI"] = 0;
+      data["PEPSI-ZERO"] = 0;
+      data["FANTA"] = 0;
+      data["MIRINDA"] = 0;
+      data["SPRITE"] = 0;
+      data["SEVEN-UP"] = 0;
+      data["SEVEN-UP-ZERO"] = 0;
+      data["PDLT-POMA"] = 0;
+      data["PDLT-TONICA"] = 0;
+      data["LEV-PERA"] = 0;
+      data["LEV-MANZANA"] = 0;
+      data["LEV-POMELO"] = 0;
+      data["LEV-NARANJA"] = 0;
+      data["LEV-LIMONADA"] = 0;
+      data["TE"] = 0;
+      data["CAFE"] = 0;
+      data["ENS-FRUTA"] = 0;
+      data["CHOCOTORTA"] = 0;
+      data["FLAN"] = 0;
+      data["MAMON-QUESO"] = 0;
+      // Guardar los cambios
+      saveDataBar(data);
+      console.log("✅ Contadores reiniciados para el nuevo día");
+    }
+    return data;
+  } catch (error) {
+    console.error("⚠️ Error leyendo data.json:", error);
+    // En caso de error, retornar estructura inicial
+    return {
+      date: getCurrentDate(),
+      serial: "XXXX",
+      B: 0,
+      P: 0,
+      "AGUA-SGAS": 0,
+      "AGUA-CGAS": 0,
+      "AGUA-SGAS-DESC": 0,
+      "AGUA-CGAS-DESC": 0,
+      "COCA": 0,
+      "COCA-ZERO": 0,
+      "PEPSI": 0,
+      "PEPSI-ZERO": 0,
+      "FANTA": 0,
+      "MIRINDA": 0,
+      "SPRITE": 0,
+      "SEVEN-UP": 0,
+      "SEVEN-UP-ZERO": 0,
+      "PDLT-POMA": 0,
+      "PDLT-TONICA": 0,
+      "LEV-PERA": 0,
+      "LEV-MANZANA": 0,
+      "LEV-POMELO": 0,
+      "LEV-NARANJA": 0,
+      "LEV-LIMONADA": 0,
+      "TE": 0,
+      "CAFE": 0,
+      "ENS-FRUTA": 0,
+      "CHOCOTORTA": 0,
+      "FLAN": 0,
+      "MAMON-QUESO": 0
+    };
+  }
+}
+
 // Función segura para leer JSON
 function loadData() {
   try {
-    if (!fs.existsSync(DATA_FILE)) {
+    if (!fs.existsSync(DATA_PATH)) {
       // Si no existe el archivo, crearlo con la estructura inicial
+      const bar = loadDataBar();
       const initialData = {
         date: getCurrentDate(),
         serial: generateSerial(),
@@ -61,17 +188,23 @@ function loadData() {
         BF: -1,
         AT: -1,
         BT: -1,
-        PT: -1
+        PT: -1,
+        BBS: 0,
+        PPS: 0
       };
-      fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2));
+      saveData(initialData);
+      bar["serial"] = initialData.serial;
+      bar["date"] = initialData.date;
+      saveDataBar(bar);
       return initialData;
     }
-    const raw = fs.readFileSync(DATA_FILE, "utf8") || "{}";
+    const raw = fs.readFileSync(DATA_PATH, "utf8") || "{}";
     const data = JSON.parse(raw);
     const today = getCurrentDate();
     // Verificar si la fecha cambió
     if (!data.date || data.date !== today) {
       console.log(`📅 Nueva fecha detectada: ${today}. Reiniciando contadores...`);
+      const bar = loadDataBar();
       // Reiniciar todos los contadores
       data.date = today;
       data.serial = generateSerial();
@@ -86,8 +219,13 @@ function loadData() {
       data.AT = -1;
       data.BT = -1;
       data.PT = -1;
+      data.BBS = 0;
+      data.PPS = 0;
       // Guardar los cambios
       saveData(data);
+      bar["serial"] = data.serial;
+      bar["date"] = data.date;
+      saveDataBar(bar);
       console.log("✅ Contadores reiniciados para el nuevo día");
     }
     return data;
@@ -107,14 +245,20 @@ function loadData() {
       BF: -1,
       AT: -1,
       BT: -1,
-      PT: -1
+      PT: -1,
+      BBS: 0,
+      PPS: 0
     };
   }
 }
 
 // Función para guardar el JSON actualizado
 function saveData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
+}
+
+function saveDataBar(data) {
+  fs.writeFileSync(DATA_PATH_BAR, JSON.stringify(data, null, 2));
 }
 
 // Función general para imprimir un ticket
@@ -169,63 +313,85 @@ function nextNumberGeneric(prefix) {
   if (!data[prefix]) data[prefix] = 0;
   data[prefix]++;
   saveData(data);
+  if (prefix === "B" || prefix === "P") {
+    const dataBar = loadDataBar();
+    data['BBS']++;
+    data['PPS']++;
+    if (!dataBar[prefix]) dataBar[prefix] = 0;
+    dataBar[prefix]++;
+    saveDataBar(dataBar);
+  }
   return `${prefix}${String(data[prefix]).padStart(2, "0")}`;
 }
 
 // Buffet Pagante
 async function handleFortinA() {
-  const tickets = [];
-  tickets.push(await printTicket("BUFFET FORTIN", nextNumberGeneric("BU"), caja));
-  tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), caja));
-  tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), caja));
-  return tickets;
+  nextNumberGeneric("BU");
+  nextNumberGeneric("P");
+  nextNumberGeneric("B");
+  // const tickets = [];
+  // tickets.push(await printTicket("BUFFET FORTIN", nextNumberGeneric("BU"), caja));
+  // tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), caja));
+  // tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), caja));
+  // return tickets;
 }
 //Buffet Liberado
 async function handleFortinB() {
-  const trash = nextNumberGeneric("BL"); // ticket basura
-  const tickets = [];
-  tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), recepcion));
-  tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), recepcion));
-  return tickets;
+  nextNumberGeneric("BL"); // Conteo Buffet Liberado, no imprime ticket
+  nextNumberGeneric("P");
+  nextNumberGeneric("B");
+  // const tickets = [];
+  // tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), recepcion));
+  // tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), recepcion));
+  // return tickets;
 }
 
 //Parrilla Pagante
 async function handleFortinC() {
-  const tickets = [];
-  tickets.push(await printTicket("PARRILLA PAGANTE", nextNumberGeneric("PA"), caja));
-  tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), caja));
-  tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), caja));
-  return tickets;
+  nextNumberGeneric("PA");
+  nextNumberGeneric("B");
+  nextNumberGeneric("P");
+  // const tickets = [];
+  // tickets.push(await printTicket("PARRILLA PAGANTE", nextNumberGeneric("PA"), caja));
+  // tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), caja));
+  // tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), caja));
+  // return tickets;
 }
 
 //Parrilla Liberado
 async function handleFortinD() {
-  const tickets = [];
-  tickets.push(await printTicket("PARRILLA LIBERADO", nextNumberGeneric("PL"), recepcion));
-  tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), recepcion));
-  tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), recepcion));
-  return tickets;
+  nextNumberGeneric("PL");
+  nextNumberGeneric("B");
+  nextNumberGeneric("P");
+  // const tickets = [];
+  // tickets.push(await printTicket("PARRILLA LIBERADO", nextNumberGeneric("PL"), recepcion));
+  // tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), recepcion));
+  // tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), recepcion));
+  // return tickets;
 }
 
 //Tripulante, para choferes/tc/guias
 async function handleTripulante() {
-  const tickets = [];
-  tickets.push(await printTicket("ALMUERZO TRIPULANTE", nextNumberGeneric("AT"), recepcion));
-  tickets.push(await printTicket("BEBIDA TRIPULANTE", nextNumberGeneric("BT"), recepcion));
-  tickets.push(await printTicket("POSTRE TRIPULANTE", nextNumberGeneric("PT"), recepcion));
-  return tickets;
+  nextNumberGeneric("AT");
+  nextNumberGeneric("BT");
+  nextNumberGeneric("PT");
+  // const tickets = [];
+  // tickets.push(await printTicket("ALMUERZO TRIPULANTE", nextNumberGeneric("AT"), recepcion));
+  // tickets.push(await printTicket("BEBIDA TRIPULANTE", nextNumberGeneric("BT"), recepcion));
+  // tickets.push(await printTicket("POSTRE TRIPULANTE", nextNumberGeneric("PT"), recepcion));
+  // return tickets;
 }
 
 // Botón JAGUAR → imprime un ticket normal
 async function handleJaguar() {
   const number = nextNumberGeneric("J");
-  return [await printTicket("JAGUAR", number, recepcion)];
+  //return [await printTicket("JAGUAR", number, recepcion)];
 }
 
 // Botón BAR → imprime un ticket con prefijo FB
 async function handleBar() {
   const number = nextNumberGeneric("BF");
-  return [await printTicket("BAR FORTIN", number, recepcion)];
+  //return [await printTicket("BAR FORTIN", number, recepcion)];
 }
 
 app.get("/print-button/:button", async (req, res) => {
@@ -264,500 +430,231 @@ app.get("/print-button/:button", async (req, res) => {
   }
 });
 
-// Servir la interfaz HTML
-app.get("/", (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Turnero Fortín Cataratas</title>
-      <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-      <link rel="shortcut icon" href="/favicon.ico" />
-      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-      <meta name="apple-mobile-web-app-title" content="Turnero" />
-      <link rel="manifest" href="/site.webmanifest" />
-      <style>
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-        
-        body {
-          font-family: Arial, sans-serif;
-          background: linear-gradient(135deg, #fef8df 0%, #fef8df 100%);
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 20px;
-        }
-        
-        .container {
-          background: white;
-          border-radius: 20px;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-          padding: 40px;
-          max-width: 600px;
-          width: 100%;
-          text-align: center;
-        }
-        
-        .logo-container {
-          margin-bottom: 30px;
-          min-height: 120px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .logo-container img {
-          max-width: 100%;
-          max-height: 120px;
-          object-fit: contain;
-        }
-        
-        h1 {
-          color: #333;
-          margin-bottom: 40px;
-          font-size: clamp(24px, 5vw, 32px);
-        }
-        
-        .button-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          margin-bottom: 30px;
-        }
-        
-        button {
-          padding: 25px 40px;
-          font-size: clamp(18px, 4vw, 24px);
-          font-weight: bold;
-          cursor: pointer;
-          border-radius: 12px;
-          background-color: #7D003E;
-          color: white;
-          border: none;
-          transition: all 0.3s ease;
-          box-shadow: 0 4px 15px rgba(125, 0, 62, 0.3);
-        }
-        
-        button:hover {
-          background-color: #97004c;
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(125, 0, 62, 0.4);
-        }
-          
-        .recuento-btn:hover {
-          background-color: #97004c;
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(125, 0, 62, 0.4);
-        }
-        
-        button:active {
-          transform: translateY(0);
-        }
-        
-        #status {
-          margin-top: 20px;
-          font-size: clamp(16px, 3vw, 20px);
-          color: #555;
-          min-height: 30px;
-        }
-        
-        /* Modal */
-        .modal {
-          display: none;
-          position: fixed;
-          z-index: 1000;
-          left: 0;
-          top: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.6);
-          animation: fadeIn 0.3s ease;
-        }
-        
-        .modal.active {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .modal-content {
-          background-color: white;
-          padding: 40px;
-          border-radius: 20px;
-          max-width: 500px;
-          width: 90%;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-          animation: slideIn 0.3s ease;
-        }
-        
-        .modal-content h2 {
-          color: #333;
-          margin-bottom: 30px;
-          font-size: clamp(20px, 4vw, 26px);
-        }
-        
-        .modal-buttons {
-          display: flex;
-          flex-direction: column;
-          gap: 15px;
-        }
-        
-        .modal-buttons button {
-          padding: 20px 30px;
-          font-size: clamp(16px, 3vw, 20px);
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateY(-50px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        /* Responsive para tablets */
-        @media (min-width: 768px) {
-          .button-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-          }
-          
-          .button-grid button:first-child {
-            grid-column: 1 / -1;
-          }
+// ==================== WEBSOCKETS ====================
 
-          .button-grid button:last-child {
-            grid-column: 1 / -1;
-          }
+// Contador de clientes conectados
+let connectedClients = {
+  recuento: 0,
+  barra: 0
+};
 
-        }
-        
-        /* Responsive para desktop */
-        @media (min-width: 1024px) {
-          .container {
-            padding: 50px;
-          }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="logo-container">
-          <!-- Aquí va tu logo -->
-          <img src="/logo.png" alt="Logo Fortín Cataratas" id="logo">
-        </div>
-        
-        <h1>Turnero Fortín Cataratas</h1>
-        
-        <div class="button-grid">
-          <button onclick="openModal()">FORTÍN</button>
-          <button onclick="print('JAGUAR')">JAGUAR</button>
-          <button onclick="print('BAR')">BAR</button>
-          <button onclick="window.location.href='/recuento'" class="recuento-btn">RECUENTO</button>
-        </div>
-        
-        <div id="status"></div>
-      </div>
+io.on('connection', (socket) => {
+  console.log(' ✓ Nuevo cliente conectado');
+  
+  // Variable para trackear la sala actual de este socket
+  let currentRoom = null;
+
+  socket.on('joinRoom', (room) => {
+    if (room === 'recuento' || room === 'barra') {
+      // Si ya estaba en una sala, salir primero
+      if (currentRoom) {
+        socket.leave(currentRoom);
+        connectedClients[currentRoom]--;
+        console.log(`⚠️ Cliente salió de ${currentRoom}. Total: ${connectedClients[currentRoom]}`);
+      }
       
-      <!-- Modal -->
-      <div id="fortinModal" class="modal" onclick="closeModalOnOutsideClick(event)">
-        <div class="modal-content">
-          <h2>Seleccione una opción</h2>
-          <div class="modal-buttons">
-            <button onclick="handleModalAction('BUFFET_LIBERADO', 'FORTINB')">BUFFET LIBERADO</button>
-            <button onclick="handleModalAction('PARRILLA_LIBERADO', 'FORTIND')">PARRILLA LIBERADO</button>
-            <button onclick="handleModalAction('TRIPULANTE', 'TRIPULANTE')">TRIPULANTE</button>
-            <button onclick="handleModalAction('BUFFET_PAGANTE', 'FORTINA')">BUFFET PAGANTE CAJA</button>
-            <button onclick="handleModalAction('PARRILLA_PAGANTE', 'FORTINC')">PARRILLA PAGANTE CAJA</button>
-          </div>
-        </div>
-      </div>
-      
-      <script>
-        function openModal() {
-          document.getElementById('fortinModal').classList.add('active');
-        }
-        
-        function closeModal() {
-          document.getElementById('fortinModal').classList.remove('active');
-        }
-        
-        function closeModalOnOutsideClick(event) {
-          if (event.target.id === 'fortinModal') {
-            closeModal();
-          }
-        }
-        
-        async function handleModalAction(action, button) {
-          await print(button);
-          console.log('Acción seleccionada:', action);
-          closeModal();
-        }
-        
-        async function print(button) {
-          const res = await fetch('/print-button/' + button);
-          const data = await res.json();
-          console.log(data);
-          document.getElementById('status').textContent = 'Turno impreso correctamente';
-          setTimeout(() => {
-            document.getElementById('status').textContent = '';
-          }, 3000);
-        }
-      </script>
-    </body>
-    </html>
-  `);
+      // Unirse a la nueva sala
+      socket.join(room);
+      currentRoom = room; // Guardar la sala actual
+      connectedClients[room]++;
+      console.log(`✓ Cliente unido a la sala ${room}. Total en ${room}: ${connectedClients[room]}`);
+
+      const currentData = room === 'recuento' ? loadData() : loadDataBar();
+      if (currentData) {
+        socket.emit('dataUpdate', currentData);
+      }
+    }
+  });
+
+  socket.on('disconnect', () => {
+    // Solo decrementar si estaba en alguna sala
+    if (currentRoom && (currentRoom === 'recuento' || currentRoom === 'barra')) {
+      connectedClients[currentRoom] = Math.max(0, connectedClients[currentRoom] - 1);
+      console.log(`🛑 Cliente desconectado de la sala ${currentRoom}. Total en ${currentRoom}: ${connectedClients[currentRoom]}`);
+      currentRoom = null;
+    }
+  });
 });
 
-app.get("/recuento", async (req, res) => {
-  try {
-    // Leer el archivo data.json
-    const data = loadData();
-    
-    res.send(`
-      <!DOCTYPE html>
-      <html lang="es">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Recuento de Turnos</title>
-        <style>
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
-          
-          body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #fef8df 0%, #fef8df 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-          }
-          
-          .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 700px;
-            width: 100%;
-          }
-          
-          .logo-container {
-            margin-bottom: 30px;
-            min-height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-          }
-          
-          .logo-container img {
-            max-width: 100%;
-            max-height: 120px;
-            object-fit: contain;
-          }
-          
-          h1 {
-            color: #333;
-            margin-bottom: 40px;
-            font-size: clamp(24px, 5vw, 32px);
-            text-align: center;
-          }
-          
-          .recuento-grid {
-            display: grid;
-            gap: 20px;
-            margin-bottom: 30px;
-          }
-          
-          .recuento-item {
-            background: linear-gradient(135deg, #fef8df 0%, #fef8df 100%);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: transform 0.3s ease;
-          }
-          
-          .recuento-item:hover {
-            transform: translateY(-3px);
-          }
-          
-          .recuento-label {
-            color: white;
-            font-size: clamp(16px, 3vw, 20px);
-            font-weight: bold;
-          }
-          
-          .recuento-value {
-            color: white;
-            font-size: clamp(28px, 5vw, 42px);
-            font-weight: bold;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 10px 20px;
-            border-radius: 8px;
-            min-width: 80px;
-            text-align: center;
-          }
-          
-          .back-button {
-            width: 100%;
-            padding: 20px 40px;
-            font-size: clamp(16px, 3vw, 20px);
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 12px;
-            background-color: #7D003E;
-            color: white;
-            border: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(125, 0, 62, 0.3);
-          }
-          
-          .back-button:hover {
-            background-color: #97004c;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(125, 0, 62, 0.4);
-          }
-          
-          .back-button:active {
-            transform: translateY(0);
-          }
-          
-          @media (min-width: 768px) {
-            .recuento-grid {
-              grid-template-columns: repeat(2, 1fr);
-            }
-          }
-          
-          @media (min-width: 768px) and (orientation: landscape) {
-            .recuento-grid {
-              grid-template-columns: repeat(3, 1fr);
-            }
-          }
-          
-          @media (min-width: 1024px) {
-            .container {
-              padding: 50px;
-              max-width: 1000px;
-            }
-            
-            .recuento-grid {
-              grid-template-columns: repeat(3, 1fr);
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="logo-container">
-            <!-- Aquí va tu logo -->
-            <img src="/logo.png" alt="Logo Fortín Cataratas" id="logo">
-          </div>
-          
-          <h1>Recuento de Turnos</h1>
+// ==================== CHOKIDAR FILE WATCHER ====================
 
-          <div style="text-align: center; margin-bottom: 20px;">
-            <div style="color: #7D003E; font-size: 20px; font-weight: bold; margin-bottom: 10px;">
-              📅 Fecha: ${data.date || 'No disponible'}
-            </div>
-            <div style="color: #7D003E; font-size: 20px; font-weight: bold;">
-              🔐 Serial del día: ${data.serial || 'XXXX'}
-            </div>
-          </div>
-          
-          <div class="recuento-grid">
-            <div class="recuento-item">
-              <span class="recuento-label" style="color: #7D003E;">BUFFET LIBERADO</span>
-              <span class="recuento-value" style="color: #7D003E;">${data.BL + 1}</span>
-            </div>
-
-            <div class="recuento-item">
-              <span class="recuento-label" style="color: #7D003E;">PARRILLA LIBERADO</span>
-              <span class="recuento-value" style="color: #7D003E;">${data.PL + 1}</span>
-            </div>
-            
-            <div class="recuento-item">
-              <span class="recuento-label" style="color: #7D003E;">BUFFET PAGANTE</span>
-              <span class="recuento-value" style="color: #7D003E;">${data.BU + 1}</span>
-            </div>
-            
-            <div class="recuento-item">
-              <span class="recuento-label" style="color: #7D003E;">PARRILLA PAGANTE</span>
-              <span class="recuento-value" style="color: #7D003E;">${data.PA + 1}</span>
-            </div>
-            
-            <div class="recuento-item">
-              <span class="recuento-label" style="color: #7D003E;">BEBIDA FORTIN</span>
-              <span class="recuento-value" style="color: #7D003E;">${data.B + 1}</span>
-            </div>
-            
-            <div class="recuento-item">
-              <span class="recuento-label" style="color: #7D003E;">POSTRE FORTIN</span>
-              <span class="recuento-value" style="color: #7D003E;">${data.P + 1}</span>
-            </div>
-
-            <div class="recuento-item">
-              <span class="recuento-label" style="color: #7D003E;">JAGUAR</span>
-              <span class="recuento-value" style="color: #7D003E;">${data.J + 1}</span>
-            </div>
-            
-            <div class="recuento-item">
-              <span class="recuento-label" style="color: #7D003E;">BAR FORTÍN</span>
-              <span class="recuento-value" style="color: #7D003E;">${data.BF + 1}</span>
-            </div>
-
-            <div class="recuento-item">
-              <span class="recuento-label" style="color: #7D003E;">ALMUERZO TRIPULANTE</span>
-              <span class="recuento-value" style="color: #7D003E;">${data.AT + 1}</span>
-            </div>
-
-            <div class="recuento-item">
-              <span class="recuento-label" style="color: #7D003E;">BEBITA TRIPULANTE</span>
-              <span class="recuento-value" style="color: #7D003E;">${data.BT + 1}</span>
-            </div>
-
-            <div class="recuento-item">
-              <span class="recuento-label" style="color: #7D003E;">POSTRE TRIPULANTE</span>
-              <span class="recuento-value" style="color: #7D003E;">${data.PT + 1}</span>
-            </div>
-          </div>
-
-          
-          <button class="back-button" onclick="window.location.href='/'">Volver al Turnero</button>
-        </div>
-      </body>
-      </html>
-    `);
-  } catch (error) {
-    console.error('Error al leer data.json:', error);
-    res.status(500).send('Error al cargar los datos');
+const watcherRecuento = chokidar.watch(DATA_PATH, {
+  persistent: true,
+  ignoreInitial: true,
+  awaitWriteFinish: {
+    stabilityThreshold: 150,  // Esperar 200ms de estabilidad
+    pollInterval: 75         // Checkear cada 100ms
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🖨️ Servidor corriendo en http://localhost:${PORT}`);
+watcherRecuento.on('change', (filePath) => {
+  console.log(`📄 Archivo modificado: ${filePath}`);
+  
+  const newData = loadData();
+  const barData = loadDataBar();
+  if (newData) {
+    // Emitir a TODOS los clientes conectados
+    io.to('recuento').emit('dataUpdate', newData);
+    io.to('barra').emit('dataUpdate', barData);
+    console.log(`📡 Datos actualizados enviados a ${connectedClients['recuento']} cliente(s) en recuento`);
+  }
+});
+
+watcherRecuento.on('error', (error) => {
+  console.error('❌ Error en file watcher:', error);
+});
+
+const watcherBarra = chokidar.watch(DATA_PATH_BAR, {
+  persistent: true,
+  ignoreInitial: true,
+  awaitWriteFinish: {
+    stabilityThreshold: 150,
+    pollInterval: 75
+  }
+});
+
+watcherBarra.on('change', (filePath) => {
+  console.log(`📄 Archivo modificado (barra): ${filePath}`);
+
+  const newData = loadDataBar();
+  if (newData) {
+    // Emitir solo a los clientes de la sala "barra"
+    io.to('barra').emit('dataUpdate', newData);
+    console.log(`📡 Datos de barra enviados a ${connectedClients.barra} cliente(s)`);
+  }
+});
+
+watcherBarra.on('error', (error) => {
+  console.error('❌ Error en file watcher (barra):', error);
+});
+
+// Manejo graceful de cierre
+process.on('SIGINT', () => {
+  console.log('\n🛑 Cerrando servidor...');
+  watcherRecuento.close();
+  watcherBarra.close();
+  server.close(() => {
+    console.log('✓ Servidor cerrado');
+    process.exit(0);
+  });
+});
+
+app.get("/update-item/:category/:item/:amount", async (req, res) => {
+  const { category, item} = req.params;
+  const amount = parseInt(req.params.amount);
+  try {
+    const data = loadDataBar();
+    const conteo = loadData();
+    if (!data[item]) data[item] = 0;
+    if (!data[category]) data[category] = 0;
+      data[item] += amount;
+      data[category] += -amount;
+      saveDataBar(data);
+      if (category === "B") {
+        conteo['BBS'] += amount;
+      } else if (category === "P") {
+        conteo['PPS'] += amount;
+      }
+      saveData(conteo);
+      res.json({ success: true, data });
+  } catch (error) {
+    console.error('Error al actualizar barra:', error);
+    res.status(500).json({ success: false, error: 'Error interno del servidor' });
+  }
+});
+
+app.get("/print-button/:button", async (req, res) => {
+  const { button } = req.params;
+  try {
+    let tickets;
+    switch(button.toUpperCase()) {
+      case "FORTINA":
+        tickets = await handleFortinA();
+        break;
+      case "FORTINB":
+        tickets = await handleFortinB();
+        break;
+      case "FORTINC":
+        tickets = await handleFortinC();
+        break;
+      case "FORTIND":
+        tickets = await handleFortinD();
+        break;
+      case "TRIPULANTE":
+        tickets = await handleTripulante();
+        break;      
+      case "JAGUAR":
+        tickets = await handleJaguar();
+        break;
+      case "BAR":
+        tickets = await handleBar();
+        break;
+      default:
+        return res.status(400).json({ success: false, error: "Botón desconocido" });
+    }
+    res.json({ success: true, tickets });
+  } catch(e) {
+    console.error("❌ Error al imprimir:", e);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+//ruta para /recuento
+app.get("/recuento", async (req, res) => {
+  try {
+    const data = loadData();
+    
+    // Leer el archivo HTML
+    let html = fs.readFileSync(path.join(__dirname, 'public', 'recuento.html'), 'utf8');
+    const placeholders = ['BL', 'PL', 'BU', 'PA', 'B', 'P', 'J', 'BF', 'AT', 'BT', 'PT'];
+    // Reemplazar los placeholders con los datos
+    placeholders.forEach(placeholder => {
+      html = html.replace(`{{${placeholder}}}`, data[placeholder] + 1);
+    });
+    html = html.replace('{{date}}', data.date || 'No disponible');
+    html = html.replace('{{serial}}', data.serial || 'XXXX');
+    html = html.replace('{{BBS}}', data.BBS || 0);
+    html = html.replace('{{PPS}}', data.PPS || 0);
+
+    res.send(html);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Error al cargar la página');
+  }
+});
+
+app.get("/barra", async (req, res) => {
+  try {
+    const conteo = loadData();
+    const data = loadDataBar();
+    
+    // Leer el archivo HTML
+    let html = fs.readFileSync(path.join(__dirname, 'public', 'barra.html'), 'utf8');
+    const placeholders = [ "B", "P", "AGUA-SGAS", "AGUA-CGAS", "AGUA-SGAS-DESC", "AGUA-CGAS-DESC", "COCA", "COCA-ZERO","PEPSI", "PEPSI-ZERO", "FANTA", "MIRINDA", "SPRITE", "SEVEN-UP", "SEVEN-UP-ZERO", "PDLT-POMA", "PDLT-TONICA", "LEV-PERA", "LEV-MANZANA", "LEV-POMELO", "LEV-NARANJA", "LEV-LIMONADA", "TE", "CAFE", "ENS-FRUTA", "CHOCOTORTA", "FLAN", "MAMON-QUESO" ];
+    // Reemplazar los placeholders con los datos
+    placeholders.forEach(placeholder => {
+      html = html.replace(`{{${placeholder}}}`, data[placeholder] || 0);
+    });
+
+    html = html.replace('{{date}}', data.date || 'No disponible');
+    html = html.replace('{{serial}}', data.serial || 'XXXX');
+    
+    res.send(html);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Error al cargar la página');
+  }
+});
+
+// ==================== INICIAR SERVIDOR ====================
+
+server.listen(PORT, () => {
+  console.log(`
+╔═══════════════════════════════════════════╗
+║   🎫 Servidor Turnero Iniciado            ║
+║   📡 Puerto: ${PORT}                         ║
+║   🔄 WebSockets: Activo                   ║
+║   👀 Observando: data.json y barData.json ║
+╚═══════════════════════════════════════════╝
+  `);
 });
