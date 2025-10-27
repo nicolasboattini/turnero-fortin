@@ -58,6 +58,7 @@ function loadDataBar() {
       // Si no existe el archivo, crearlo con la estructura inicial
       const initialData = {
         date: getCurrentDate(),
+        serial: "XXXX",
         B: 0,
         P: 0,
         "AGUA-SGAS": 0,
@@ -92,12 +93,11 @@ function loadDataBar() {
     }
     const raw = fs.readFileSync(DATA_PATH_BAR, "utf8") || "{}";
     const data = JSON.parse(raw);
+    
     const today = getCurrentDate();
-    // Verificar si la fecha cambió
-    if (!data.date || data.date !== today) {
-      console.log(`📅 Nueva fecha detectada: ${today}. Reiniciando contadores...`);
-      // Reiniciar todos los contadores
+      if (!data.date || data.date !== today) {
       data.date = today;
+      data.serial = "XXXX";
       data.B = 0;
       data.P = 0;
       data["AGUA-SGAS"] = 0;
@@ -136,6 +136,7 @@ function loadDataBar() {
     // En caso de error, retornar estructura inicial
     return {
       date: getCurrentDate(),
+      serial: "XXXX",
       B: 0,
       P: 0,
       "AGUA-SGAS": 0,
@@ -173,6 +174,7 @@ function loadData() {
   try {
     if (!fs.existsSync(DATA_PATH)) {
       // Si no existe el archivo, crearlo con la estructura inicial
+      const bar = loadDataBar();
       const initialData = {
         date: getCurrentDate(),
         serial: generateSerial(),
@@ -190,16 +192,19 @@ function loadData() {
         BBS: 0,
         PPS: 0
       };
-      fs.writeFileSync(DATA_PATH, JSON.stringify(initialData, null, 2));
+      saveData(initialData);
+      bar["serial"] = initialData.serial;
+      bar["date"] = initialData.date;
+      saveDataBar(bar);
       return initialData;
     }
     const raw = fs.readFileSync(DATA_PATH, "utf8") || "{}";
     const data = JSON.parse(raw);
-    const bar = loadDataBar();
     const today = getCurrentDate();
     // Verificar si la fecha cambió
     if (!data.date || data.date !== today) {
       console.log(`📅 Nueva fecha detectada: ${today}. Reiniciando contadores...`);
+      const bar = loadDataBar();
       // Reiniciar todos los contadores
       data.date = today;
       data.serial = generateSerial();
@@ -246,8 +251,6 @@ function loadData() {
     };
   }
 }
-
-
 
 // Función para guardar el JSON actualizado
 function saveData(data) {
@@ -479,8 +482,8 @@ const watcherRecuento = chokidar.watch(DATA_PATH, {
   persistent: true,
   ignoreInitial: true,
   awaitWriteFinish: {
-    stabilityThreshold: 100,  // Esperar 200ms de estabilidad
-    pollInterval: 50         // Checkear cada 100ms
+    stabilityThreshold: 150,  // Esperar 200ms de estabilidad
+    pollInterval: 75         // Checkear cada 100ms
   }
 });
 
@@ -488,9 +491,11 @@ watcherRecuento.on('change', (filePath) => {
   console.log(`📄 Archivo modificado: ${filePath}`);
   
   const newData = loadData();
+  const barData = loadDataBar();
   if (newData) {
     // Emitir a TODOS los clientes conectados
     io.to('recuento').emit('dataUpdate', newData);
+    io.to('barra').emit('dataUpdate', barData);
     console.log(`📡 Datos actualizados enviados a ${connectedClients['recuento']} cliente(s) en recuento`);
   }
 });
@@ -503,14 +508,14 @@ const watcherBarra = chokidar.watch(DATA_PATH_BAR, {
   persistent: true,
   ignoreInitial: true,
   awaitWriteFinish: {
-    stabilityThreshold: 100,
-    pollInterval: 50
+    stabilityThreshold: 150,
+    pollInterval: 75
   }
 });
 
 watcherBarra.on('change', (filePath) => {
   console.log(`📄 Archivo modificado (barra): ${filePath}`);
-  
+
   const newData = loadDataBar();
   if (newData) {
     // Emitir solo a los clientes de la sala "barra"

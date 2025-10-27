@@ -36,20 +36,20 @@
           
           <!-- Contadores superiores -->
           <div class="header-counters">
-            <div class="counter-card">
+            <button class="counter-card" onclick="updateItem('AGUA-SGAS-DESC', 1, 'B')">
               <div class="counter-label">PARA ENTREGAR</div>
               <div id="bebidaCont" class="counter-value">{{B}}</div>
               <div class="counter-sublabel">BEBIDAS</div>
-            </div>
-            
-            <div class="counter-card">
+            </button>
+
+            <button class="counter-card" onclick="updateItem('FLAN', 1, 'P')">
               <div class="counter-label">PARA ENTREGAR</div>
               <div id="postresCont" class="counter-value">{{P}}</div>
               <div class="counter-sublabel">POSTRES</div>
-            </div>
+            </button>
           </div>
           
-          <!-- Sección Bebidas -->
+          <!--
           <div class="section">
             <h2 class="section-title">BEBIDAS</h2>
             <div class="items-grid" id="bebidas-grid">
@@ -92,7 +92,7 @@
                 <div class="card-body">
                     <button class="btn-left" onclick="updateItem('AGUA-SGAS-DESC', -1, 'B')">−</button>
                     <div class="card-image">
-                        <img src="/brands/agua-sin-gas-desc.jpg" alt="Agua Sin Gas Desc." onerror="this.style.display='none'">
+                        <img src="/brands/agua-sin-gas-desc.png" alt="Agua Sin Gas Desc." onerror="this.style.display='none'">
                     </div>
                     <button class="btn" onclick="updateItem('AGUA-SGAS-DESC', 1, 'B')">+</button>
                 </div>
@@ -107,7 +107,7 @@
                 <div class="card-body">
                     <button class="btn-left" onclick="updateItem('AGUA-CGAS-DESC', -1, 'B')">−</button>
                     <div class="card-image">
-                        <img src="/images/agua-con-gas-desc.jpg" alt="Agua Con Gas Desc." onerror="this.style.display='none'">
+                        <img src="/images/agua-con-gas-desc.png" alt="Agua Con Gas Desc." onerror="this.style.display='none'">
                     </div>
                     <button class="btn" onclick="updateItem('AGUA-CGAS-DESC', 1, 'B')">+</button>
                 </div>
@@ -123,7 +123,7 @@
                 <div class="card-body">
                     <button class="btn-left" onclick="updateItem('COCA', -1, 'B')">−</button>
                     <div class="card-image">
-                        <img src="/brands/coca-cola.jpg" alt="COCA COLA" onerror="this.style.display='none'">
+                        <img src="/brands/coca-cola.png" alt="COCA COLA" onerror="this.style.display='none'">
                     </div>
                     <button class="btn" onclick="updateItem('COCA', 1, 'B')">+</button>
                 </div>
@@ -299,7 +299,7 @@
                 <div class="card-body">
                     <button class="btn-left" onclick="updateItem('LEV-PERA', -1, 'B')">−</button>
                     <div class="card-image">
-                        <img src="/brands/lev-pera.jpg" alt="Levite Pera" onerror="this.style.display='none'">
+                        <img src="/brands/lev-pera.png" alt="Levite Pera" onerror="this.style.display='none'">
                     </div>
                     <button class="btn" onclick="updateItem('LEV-PERA', 1, 'B')">+</button>
                 </div>
@@ -315,7 +315,7 @@
                 <div class="card-body">
                     <button class="btn-left" onclick="updateItem('LEV-MANZANA', -1, 'B')">−</button>
                     <div class="card-image">
-                        <img src="/brands/lev-manzana.jpg" alt="Levite Manzana" onerror="this.style.display='none'">
+                        <img src="/brands/lev-manzana.png" alt="Levite Manzana" onerror="this.style.display='none'">
                     </div>
                     <button class="btn" onclick="updateItem('LEV-MANZANA', 1, 'B')">+</button>
                 </div>
@@ -331,7 +331,7 @@
                 <div class="card-body">
                     <button class="btn-left" onclick="updateItem('LEV-POMELO', -1, 'B')">−</button>
                     <div class="card-image">
-                        <img src="/brands/lev-pomelo.jpg" alt="Levite Pomelo" onerror="this.style.display='none'">
+                        <img src="/brands/lev-pomelo.png" alt="Levite Pomelo" onerror="this.style.display='none'">
                     </div>
                     <button class="btn" onclick="updateItem('LEV-POMELO', 1, 'B')">+</button>
                 </div>
@@ -347,7 +347,7 @@
                 <div class="card-body">
                     <button class="btn-left" onclick="updateItem('LEV-PERA', -1, 'B')">−</button>
                     <div class="card-image">
-                        <img src="/brands/lev-naranja.jpg" alt="Levite Naranja" onerror="this.style.display='none'">
+                        <img src="/brands/lev-naranja.png" alt="Levite Naranja" onerror="this.style.display='none'">
                     </div>
                     <button class="btn" onclick="updateItem('LEV-NARANJA', 1, 'B')">+</button>
                 </div>
@@ -363,7 +363,7 @@
                 <div class="card-body">
                     <button class="btn-left" onclick="updateItem('LEV-LIMONADA', -1, 'B')">−</button>
                     <div class="card-image">
-                        <img src="/brands/lev-limonada.jpg" alt="Levite Limonada" onerror="this.style.display='none'">
+                        <img src="/brands/lev-limonada.png" alt="Levite Limonada" onerror="this.style.display='none'">
                     </div>
                     <button class="btn" onclick="updateItem('LEV-LIMONADA', 1, 'B')">+</button>
                 </div>
@@ -375,11 +375,9 @@
             </div>
           </div>
           
-          <!-- Sección Postres -->
           <div class="section">
             <h2 class="section-title">POSTRES</h2>
             <div class="items-grid" id="postres-grid">
-              <!-- Aquí agregas los 6 botones de postres con el mismo formato -->
 
                <div class="inventory-card">
                 <div class="card-header">
@@ -404,7 +402,7 @@
                 <div class="card-body">
                     <button class="btn-left" onclick="updateItem('CAFE', -1, 'P')">−</button>
                     <div class="card-image">
-                        <img src="/brands/cafe.jpg" alt="Cafe" onerror="this.style.display='none'">
+                        <img src="/brands/cafe.png" alt="Cafe" onerror="this.style.display='none'">
                     </div>
                     <button class="btn" onclick="updateItem('CAFE', 1, 'P')">+</button>
                 </div>
@@ -420,7 +418,7 @@
                 <div class="card-body">
                     <button class="btn-left" onclick="updateItem('ENS-FRUTA', -1, 'P')">−</button>
                     <div class="card-image">
-                        <img src="/brands/fruta.jpg" alt="Ensalada de Frutas" onerror="this.style.display='none'">
+                        <img src="/brands/fruta.png" alt="Ensalada de Frutas" onerror="this.style.display='none'">
                     </div>
                     <button class="btn" onclick="updateItem('ENS-FRUTA', 1, 'P')">+</button>
                 </div>
@@ -436,7 +434,7 @@
                 <div class="card-body">
                     <button class="btn-left" onclick="updateItem('CHOCOTORTA', -1, 'P')">−</button>
                     <div class="card-image">
-                        <img src="/brands/chocotorta.jpg" alt="Chocotorta" onerror="this.style.display='none'">
+                        <img src="/brands/chocotorta.png" alt="Chocotorta" onerror="this.style.display='none'">
                     </div>
                     <button class="btn" onclick="updateItem('CHOCOTORTA', 1, 'P')">+</button>
                 </div>
@@ -452,7 +450,7 @@
                 <div class="card-body">
                     <button class="btn-left" onclick="updateItem('FLAN', -1, 'P')">−</button>
                     <div class="card-image">
-                        <img src="/brands/flan.jpg" alt="Flan con Dulce de Leche" onerror="this.style.display='none'">
+                        <img src="/brands/flan.png" alt="Flan con Dulce de Leche" onerror="this.style.display='none'">
                     </div>
                     <button class="btn" onclick="updateItem('FLAN', 1, 'P')">+</button>
                 </div>
@@ -468,7 +466,7 @@
                 <div class="card-body">
                     <button class="btn-left" onclick="updateItem('MAMON-QUESO', -1, 'P')">−</button>
                     <div class="card-image">
-                        <img src="/brands/mamon.jpg" alt="Mamón con Queso" onerror="this.style.display='none'">
+                        <img src="/brands/mamon.png" alt="Mamón con Queso" onerror="this.style.display='none'">
                     </div>
                     <button class="btn" onclick="updateItem('MAMON-QUESO', 1, 'P')">+</button>
                 </div>
@@ -479,6 +477,7 @@
 
             </div>
           </div>
+          -->
           
           <button class="back-button" onclick="window.location.href='/'">Volver al Turnero</button>
         </div>

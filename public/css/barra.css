@@ -87,9 +87,19 @@ margin-bottom: 40px;
 .counter-card {
 background: linear-gradient(135deg, #fef8df 0%, #fef8df 100%);
 padding: 30px;
+border: none;
 border-radius: 15px;
+cursor: pointer;
 text-align: center;
 box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+.counter-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+.counter-card:active {
+  transform: translateY(0);
 }
 
 .counter-label {
