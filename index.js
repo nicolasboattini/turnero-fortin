@@ -326,72 +326,56 @@ function nextNumberGeneric(prefix) {
 
 // Buffet Pagante
 async function handleFortinA() {
-  nextNumberGeneric("BU");
-  nextNumberGeneric("P");
-  nextNumberGeneric("B");
-  // const tickets = [];
-  // tickets.push(await printTicket("BUFFET FORTIN", nextNumberGeneric("BU"), caja));
-  // tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), caja));
-  // tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), caja));
-  // return tickets;
+  const tickets = [];
+  tickets.push(await printTicket("BUFFET FORTIN", nextNumberGeneric("BU"), caja));
+  tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), caja));
+  tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), caja));
+  return tickets;
 }
 //Buffet Liberado
 async function handleFortinB() {
   nextNumberGeneric("BL"); // Conteo Buffet Liberado, no imprime ticket
-  nextNumberGeneric("P");
-  nextNumberGeneric("B");
-  // const tickets = [];
-  // tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), recepcion));
-  // tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), recepcion));
-  // return tickets;
+  const tickets = [];
+  tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), recepcion));
+  tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), recepcion));
+  return tickets;
 }
 
 //Parrilla Pagante
 async function handleFortinC() {
-  nextNumberGeneric("PA");
-  nextNumberGeneric("B");
-  nextNumberGeneric("P");
-  // const tickets = [];
-  // tickets.push(await printTicket("PARRILLA PAGANTE", nextNumberGeneric("PA"), caja));
-  // tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), caja));
-  // tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), caja));
-  // return tickets;
+  const tickets = [];
+  tickets.push(await printTicket("PARRILLA PAGANTE", nextNumberGeneric("PA"), caja));
+  tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), caja));
+  tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), caja));
+  return tickets;
 }
 
 //Parrilla Liberado
 async function handleFortinD() {
-  nextNumberGeneric("PL");
-  nextNumberGeneric("B");
-  nextNumberGeneric("P");
-  // const tickets = [];
-  // tickets.push(await printTicket("PARRILLA LIBERADO", nextNumberGeneric("PL"), recepcion));
-  // tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), recepcion));
-  // tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), recepcion));
-  // return tickets;
+  const tickets = [];
+  tickets.push(await printTicket("PARRILLA LIBERADO", nextNumberGeneric("PL"), recepcion));
+  tickets.push(await printTicket("BEBIDA FORTIN", nextNumberGeneric("B"), recepcion));
+  tickets.push(await printTicket("POSTRE FORTIN", nextNumberGeneric("P"), recepcion));
+  return tickets;
 }
 
 //Tripulante, para choferes/tc/guias
 async function handleTripulante() {
-  nextNumberGeneric("AT");
-  nextNumberGeneric("BT");
-  nextNumberGeneric("PT");
-  // const tickets = [];
-  // tickets.push(await printTicket("ALMUERZO TRIPULANTE", nextNumberGeneric("AT"), recepcion));
-  // tickets.push(await printTicket("BEBIDA TRIPULANTE", nextNumberGeneric("BT"), recepcion));
-  // tickets.push(await printTicket("POSTRE TRIPULANTE", nextNumberGeneric("PT"), recepcion));
-  // return tickets;
+  const tickets = [];
+  tickets.push(await printTicket("ALMUERZO TRIPULANTE", nextNumberGeneric("AT"), recepcion));
+  tickets.push(await printTicket("BEBIDA TRIPULANTE", nextNumberGeneric("BT"), recepcion));
+  tickets.push(await printTicket("POSTRE TRIPULANTE", nextNumberGeneric("PT"), recepcion));
+  return tickets;
 }
 
 // Botón JAGUAR → imprime un ticket normal
 async function handleJaguar() {
-  const number = nextNumberGeneric("J");
-  //return [await printTicket("JAGUAR", number, recepcion)];
+  return [await printTicket("JAGUAR", nextNumberGeneric("J"), recepcion)];
 }
 
 // Botón BAR → imprime un ticket con prefijo FB
 async function handleBar() {
-  const number = nextNumberGeneric("BF");
-  //return [await printTicket("BAR FORTIN", number, recepcion)];
+  return [await printTicket("BAR FORTIN", nextNumberGeneric("BF"), recepcion)];
 }
 
 app.get("/print-button/:button", async (req, res) => {
